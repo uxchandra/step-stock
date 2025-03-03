@@ -11,7 +11,7 @@ class Order extends Model
 
     protected $fillable = [
         'requester_id', 'department_id', 'status', 'tanggal_approve_kadiv', 'tanggal_approve_kagud',
-        'approved_by_kadiv', 'approved_by_kagud', 'catatan'
+        'approved_by_kadiv', 'approved_by_kagud', 'catatan', 'tanggal_order'
     ];
 
     public function barangKeluar()

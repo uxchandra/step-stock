@@ -62,6 +62,11 @@
                 success: function(response) {
                     let table = $('#table_id').DataTable();
                     table.clear();
+
+                    if (response.data.length === 0) {
+                        $('#table_id tbody').html('<tr><td colspan="8" style="text-align:center;">Tidak ada data tersedia</td></tr>');
+                        return;
+                    }
                     
                     $.each(response.data, function(key, value) {
                         let stok = value.stok != null ? value.stok : 0;
@@ -97,9 +102,13 @@
 
                         $(rowNode).addClass(rowClass);
                     });
+
+                    // Close the loading indicator when data is loaded
+                    Swal.close();
                 },
                 error: function(xhr, status, error) {
                     console.error('Error loading data:', error);
+                    $('#table_id tbody').html('<tr><td colspan="8" style="text-align:center; color:red;">Gagal memuat data. Silakan coba lagi.</td></tr>');
                 }
             });
         }
@@ -108,10 +117,42 @@
     <!-- Datatables Jquery -->
     <script>
        $(document).ready(function() {
+
+        $('<style>')
+        .text(`
+            .custom-loader {
+                width: 40px;
+                height: 40px;
+                border: 5px solid #f3f3f3;
+                border-top: 5px solid #3498db;
+                border-radius: 50%;
+                display: inline-block;
+                animation: spin 1s linear infinite;
+                margin-right: 10px;
+            }
+            
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            
+            .loading-container {
+                text-align: center;
+                padding: 20px;
+            }
+        `)
+        .appendTo('head');
+
         // Inisialisasi DataTable
         let table = $('#table_id').DataTable({
             processing: true,
+            language: {
+                emptyTable: '<div class="loading-container"><div class="custom-loader"></div><div>Sedang memuat data...</div></div>'
+            }
         });
+
+        // Set initial state to show loading in the table
+        $('#table_id tbody').html('<tr><td colspan="8" class="loading-container"><div class="custom-loader"></div><div>Sedang memuat data barang...</div></td></tr>');
         
         loadData();
 

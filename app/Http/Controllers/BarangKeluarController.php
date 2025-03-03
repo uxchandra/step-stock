@@ -143,7 +143,10 @@ class BarangKeluarController extends Controller
             // Cek stok barang
             $barang = Barang::findOrFail($barangId);
             if ($barang->stok < $quantity) {
-                return redirect()->back()->with('error', 'Stok barang ' . $barang->nama_barang . ' tidak mencukupi.');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Stok barang ' . $barang->nama_barang . ' tidak mencukupi.'
+                ], 422);
             }
 
             // Kurangi stok barang
@@ -158,8 +161,12 @@ class BarangKeluarController extends Controller
             ]);
         }
 
-        // Redirect dengan pesan sukses
-        return redirect()->route('barang-keluar.index')->with('success', 'Barang keluar manual berhasil disimpan.');
+        // Return JSON response
+        return response()->json([
+            'success' => true,
+            'message' => 'Barang keluar manual berhasil disimpan.',
+            'redirect' => route('barang-keluar.index')
+        ]);
     }
 
     public function create()

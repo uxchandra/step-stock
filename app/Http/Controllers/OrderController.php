@@ -84,7 +84,6 @@ class OrderController extends Controller
             'catatan' => 'nullable|string',
         ]);
 
-
         DB::beginTransaction();
         try {
             foreach ($request->barang_id as $index => $barangId) {
@@ -95,6 +94,14 @@ class OrderController extends Controller
                 
                 if ($stokTersedia < $requestedQuantity) {
                     DB::rollBack();
+                    
+                    if ($request->ajax()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => "Stok {$barang->nama_barang} tidak mencukupi! Tersedia: {$stokTersedia}, Diminta: {$requestedQuantity}"
+                        ]);
+                    }
+                    
                     return redirect()->back()->with('error', "Stok {$barang->nama_barang} tidak mencukupi! Tersedia: {$stokTersedia}, Diminta: {$requestedQuantity}");
                 }
                 
@@ -109,6 +116,7 @@ class OrderController extends Controller
                 'department_id' => $request->department_id,
                 'status' => 'Pending',
                 'catatan' => $request->catatan,
+                'tanggal_order' => now(),
             ]);
 
             // Simpan item-item yang diminta
@@ -119,11 +127,28 @@ class OrderController extends Controller
                     'quantity' => $request->quantity[$index],
                 ]);
             }
-          
+        
             DB::commit();
+            
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Permintaan barang berhasil dibuat.',
+                    'redirect' => route('orders.index')
+                ]);
+            }
+            
             return redirect()->route('orders.index')->with('success', 'Permintaan barang berhasil dibuat.');
         } catch (\Exception $e) {
             DB::rollBack();
+            
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                ]);
+            }
+            
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }

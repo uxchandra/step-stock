@@ -325,6 +325,8 @@
 <script>
     // Department requests chart
     var deptCtx = document.getElementById('departmentRequestsChart').getContext('2d');
+    var departmentIds = @json($departmentIds); // Ambil ID dari variabel PHP
+
     new Chart(deptCtx, {
         type: 'bar',
         data: {
@@ -332,7 +334,7 @@
             datasets: [{
                 label: 'Jumlah Permintaan',
                 data: @json($departmentRequestData),
-                backgroundColor: 'rgba(0, 50, 150, 0.8)', 
+                backgroundColor: 'rgba(0, 50, 150, 0.8)',
                 borderColor: 'rgba(0, 50, 150, 1)',
                 borderWidth: 1
             }]
@@ -355,6 +357,20 @@
                 },
                 legend: {
                     position: 'top'
+                }
+            },
+            // Tambahkan event handler untuk klik
+            onClick: (event, elements) => {
+                if (elements.length > 0) {
+                    var index = elements[0].index; // Ambil indeks bar yang diklik
+                    var departmentId = departmentIds[index]; // Ambil ID department
+                    // Redirect ke route laporan-permintaan-department.show
+                    window.location.href = '{{ route("laporan-permintaan-department.show", "") }}/' + departmentId;
+                }
+            },
+            hover: {
+                onHover: (event, elements) => {
+                    event.native.target.style.cursor = elements.length ? 'pointer' : 'default';
                 }
             }
         }

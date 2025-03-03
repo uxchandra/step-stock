@@ -326,6 +326,92 @@
                 }
             }
         });
+
+        // Menangkap submit form
+        document.getElementById('createOrderForm').addEventListener('submit', function(e) {
+            e.preventDefault(); 
+            
+            // Dapatkan referensi ke modal
+            const modal = $('#addOrderModal');
+            
+            // Mengirim form via AJAX
+            fetch(this.action, {
+                method: 'POST',
+                body: new FormData(this),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                modal.modal('hide');
+                
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: data.message,
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 2000,
+                    }).then(() => {
+                        window.location.href = data.redirect;
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message,
+                        icon: 'error',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                }
+            })
+            .catch(error => {
+                // Sembunyikan modal
+                modal.modal('hide');
+                
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Terjadi kesalahan saat menyimpan data',
+                    icon: 'error',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+            });
+        });
+
+        @if(session('success'))
+            Swal.fire({
+                title: 'Berhasil!',
+                text: "{{ session('success') }}",
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+        @endif
+
+        @if(session('error'))
+            Swal.fire({
+                title: 'Error!',
+                text: "{{ session('error') }}",
+                icon: 'error',
+                showConfirmButton: false,
+                timer: 2000,
+            });
+        @endif
+        
+        // Tangkap semua form dengan ID yang dimulai dengan "approveForm"
+        document.querySelectorAll('form[id^="approveForm"]').forEach(function(form) {
+            form.addEventListener('submit', function() {
+                // Tutup modal saat form di-submit
+                const modalId = this.closest('.modal').id;
+                $('#' + modalId).modal('hide');
+            });
+        });
     });
 </script>
 

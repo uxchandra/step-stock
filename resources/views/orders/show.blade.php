@@ -50,7 +50,6 @@
                                         <td>{{ $itemIndex + 1 }}</td>
                                         <td>{{ $item->barang->nama_barang }}</td>
                                         <td>{{ $item->quantity }}</td>
-                                        <td>{{ $item->barang->satuan }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

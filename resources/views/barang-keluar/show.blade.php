@@ -19,12 +19,15 @@
                 </div>
 
                 <!-- Card Catatan -->
-                <div class="card bg-warning text-dark mb-3" style="max-height: 100px;">
-                    <div class="card-body" style="padding: 10px;">
-                        <h6 class="card-title" style="margin-bottom: 5px; color: white;"><strong>Catatan:</strong></h6>
-                        <p id="modal-catatan" class="mb-0" style="color: white;">Tidak ada catatan.</p>
+                <div class="card text-dark mb-3" style="background-color: #fff8e1; border-left: 4px solid #ffc107; border-radius: 6px; max-height: 80px; overflow: hidden;">
+                    <div class="card-body" style="padding: 8px 12px;">
+                        <div class="d-flex align-items-center mb-1" style="gap: 6px;">
+                            <i class="fas fa-info-circle" style="color: #6c757d; font-size: 0.9rem;"></i>
+                            <h6 class="card-title mb-0" style="color: #495057; font-weight: bold; font-size: 0.9rem;">Catatan:</h6>
+                        </div>
+                        <p id="modal-catatan" class="mb-0" style="color: #6c757d; font-size: 0.85rem; margin-left: 18px;">Tidak ada catatan.</p>
                     </div>
-                </div>
+                </div>                                                                   
                 
                 <div class="table-responsive">
                     <table class="table table-bordered">
@@ -43,7 +46,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-dark" data-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>

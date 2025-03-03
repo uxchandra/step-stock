@@ -89,14 +89,19 @@ class DashboardController extends Controller
 
         $departmentRequests = DB::table('orders')
             ->join('departments', 'orders.department_id', '=', 'departments.id')
-            ->select('departments.nama_departemen as department_name', DB::raw('COUNT(orders.id) as request_count'))
+            ->select(
+                'departments.id as department_id', // Tambahkan ID
+                'departments.nama_departemen as department_name',
+                DB::raw('COUNT(orders.id) as request_count')
+            )
             ->whereBetween('orders.created_at', [$startOfMonth, $endOfMonth])
-            ->groupBy('departments.nama_departemen')
+            ->groupBy('departments.id', 'departments.nama_departemen') // Group by ID juga untuk memastikan unik
             ->orderBy('request_count', 'desc')
             ->get();
 
         $departmentRequestLabels = $departmentRequests->pluck('department_name')->toArray();
         $departmentRequestData = $departmentRequests->pluck('request_count')->toArray();
+        $departmentIds = $departmentRequests->pluck('department_id')->toArray(); // Ambil ID
         $currentMonth = Carbon::now()->format('F Y');
 
         // Define permintaan based on user's department
@@ -144,6 +149,7 @@ class DashboardController extends Controller
             'label' => $label,
             'departmentRequestLabels' => $departmentRequestLabels,
             'departmentRequestData' => $departmentRequestData,
+            'departmentIds' => $departmentIds,
             'currentMonth' => $currentMonth
         ]);
     }

@@ -215,18 +215,58 @@
                     $('#kode_barang').focus();
                 });
 
-                // Handle form submit
-                $('form').submit(function(e) {
-                    if ($('#tableItem tbody tr').length === 0) {
-                        e.preventDefault();
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Peringatan',
-                            text: 'Silakan tambahkan minimal satu barang!'
+                    // Handle form submit
+                    $('form').submit(function(e) {
+                        e.preventDefault(); // Prevent default form submission
+                        
+                        if ($('#tableItem tbody tr').length === 0) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Peringatan',
+                                text: 'Silakan tambahkan minimal satu barang!'
+                            });
+                            return;
+                        }
+                        
+                        // Get the form data
+                        var formData = $(this).serialize();
+                        var formAction = $(this).attr('action');
+
+                        // Submit form using AJAX
+                        $.ajax({
+                            type: 'POST',
+                            url: formAction,
+                            data: formData,
+                            success: function(response) {
+                                // Show success message
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil!',
+                                    text: 'Data Barang keluar berhasil disimpan.',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(function() {
+                                    // Redirect to index page after success alert
+                                    window.location.href = "{{ route('barang-keluar.index') }}";
+                                });
+                            },
+                            error: function(xhr) {
+                                // Show error message
+                                var errorMessage = 'Terjadi kesalahan saat menyimpan data.';
+                                
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMessage = xhr.responseJSON.message;
+                                }
+                                
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: errorMessage
+                                });
+                            }
                         });
-                    }
+                    });
                 });
-            });
         </script>
     @endpush
 @endsection
