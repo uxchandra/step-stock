@@ -206,6 +206,8 @@
 
   </script>
 
+  <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lanej/Pusher-Echo/1.0.0/pusher.echo.js"></script>
   
 </body>
 </html>
