@@ -25,34 +25,65 @@ class BarangController extends Controller
         ]);
     }
 
-    public function getDataBarang()
+    public function getDataBarang(Request $request)
     {
-        $barangs = Barang::with('jenis')->get();
+        // Ambil parameter dari DataTable
+        $perPage = $request->input('length', 10);
+        $start = $request->input('start', 0);   
+        $search = $request->input('search.value');
 
-        // Perbaikan cara generate QR Code
+        // Query dasar dengan relasi
+        $query = Barang::with('jenis:id,jenis_barang') // Hanya ambil kolom yang diperlukan dari relasi
+            ->select('id', 'kode', 'gambar', 'nama_barang', 'size', 'stok_minimum', 'stok', 'nama_supplier', 'jenis_id'); // Select kolom spesifik
+
+        // Jika ada pencarian
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('kode', 'like', "%{$search}%")
+                ->orWhere('nama_barang', 'like', "%{$search}%")
+                ->orWhere('size', 'like', "%{$search}%");
+            });
+        }
+
+        // Hitung total data (tanpa filter)
+        $totalData = Barang::count();
+
+        // Hitung total data setelah filter (jika ada pencarian)
+        $totalFiltered = $search ? $query->count() : $totalData;
+
+        // Ambil data dengan pagination
+        $barangs = $query->skip($start)
+                        ->take($perPage)
+                        ->get();
+
+        // Inisialisasi QR Code renderer
         $renderer = new ImageRenderer(
-            new RendererStyle(70), // Ukuran QR Code
+            new RendererStyle(70),
             new SvgImageBackEnd()
         );
-
         $writer = new Writer($renderer);
 
+        // Proses data untuk response
         foreach ($barangs as $barang) {
-            // Generate QR code untuk setiap barang
+            // Generate QR code
             $qrCode = $writer->writeString($barang->kode);
-
-            // Konversi ke HTML untuk ditampilkan di view
             $barang->barcode_html = '<div style="width: 100px; text-align: center">' . $qrCode . '</div>';
             $barang->barcode_html .= '<div style="font-size: 14px; text-align: center">' . $barang->kode . '</div>';
 
+            // Set path gambar
             $barang->gambar = $barang->gambar ? asset('storage/' . $barang->gambar) : null;
 
-            $barang->id = $barang->id;
+            
+            // Tambahkan nama jenis jika ada relasi
+            $barang->jenis_id = $barang->jenis ? $barang->jenis->jenis_barang : '-';
         }
 
         return response()->json([
             'success' => true,
-            'data'    => $barangs
+            'draw' => $request->input('draw'), // Untuk sinkronisasi dengan DataTable
+            'recordsTotal' => $totalData,
+            'recordsFiltered' => $totalFiltered,
+            'data' => $barangs
         ]);
     }
 

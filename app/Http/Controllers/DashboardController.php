@@ -67,6 +67,13 @@ class DashboardController extends Controller
                                 ->get();
         }
 
+        $ordersReady = collect();
+        if ($userRole === 'admin divisi' || $userRole === 'kepala divisi') {
+            $ordersReady = Order::where('status', 'Ready')
+                                ->where('department_id', $user->department_id)
+                                ->get();
+        }
+
         // Data untuk Kepala Gudang
         $orders = collect();
         if ($userRole === 'kepala gudang') {
@@ -141,6 +148,7 @@ class DashboardController extends Controller
             'ordersKadiv' => $ordersKadiv,
             'orders' => $orders,
             'ordersAdmin' => $ordersAdmin,
+            'ordersReady' => $ordersReady,
             'jumlahPermintaan' => $permintaan->count(),
             'permintaanPending' => $permintaan->where('status', 'Pending')->count(),
             'permintaanProses' => $permintaan->whereIn('status', ['Approved by Kadiv', 'Approved by Kagud', 'Ready'])->count(),

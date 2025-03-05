@@ -22,19 +22,42 @@
             @endif
 
         @elseif (auth()->user()->role->role === 'kepala divisi')
-            @if ($ordersKadiv->count() == 0)
+            @if ($ordersKadiv->count() == 0 && $ordersReady->count() == 0)
                 <div class="alert alert-info d-flex align-items-center" role="alert">
                     <i class="fas fa-info-circle mr-2"></i>
-                    Tidak ada permintaan barang yang perlu Anda approve saat ini.
+                    Tidak ada permintaan barang yang perlu Anda approve atau ambil saat ini.
                 </div>
             @else
+                @if ($ordersKadiv->count() > 0)
+                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Terdapat {{ $ordersKadiv->count() }} permintaan barang menunggu persetujuan Anda
+                        <a href="{{ route('orders.index') }}" class="ml-1" style="color: #0000e6; text-decoration: underline;">Lihat Detail</a>
+                    </div>
+                @endif
+                @if ($ordersReady->count() > 0)
+                    <div class="alert alert-success d-flex align-items-center" role="alert">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Terdapat {{ $ordersReady->count() }} permintaan barang siap diambil. Silakan ambil di gudang.
+                        <a href="{{ route('orders.index') }}" class="ml-1" style="color: #0000e6; text-decoration: underline;">Lihat Detail</a>
+                    </div>
+                @endif
+            @endif
+
+        @elseif (auth()->user()->role->role === 'admin divisi')
+            @if ($ordersReady->count() == 0)
                 <div class="alert alert-info d-flex align-items-center" role="alert">
                     <i class="fas fa-info-circle mr-2"></i>
-                    Terdapat {{ $ordersKadiv->count() }} permintaan barang menunggu persetujuan Anda
+                    Tidak ada barang yang siap diambil saat ini.
+                </div>
+            @else
+                <div class="alert alert-success d-flex align-items-center" role="alert">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    Terdapat {{ $ordersReady->count() }} permintaan barang siap diambil. Silakan ambil di gudang.
                     <a href="{{ route('orders.index') }}" class="ml-1" style="color: #0000e6; text-decoration: underline;">Lihat Detail</a>
                 </div>
             @endif
-       
+
         @elseif (auth()->user()->role->role === 'admin gudang')
             @if ($ordersAdmin->count() == 0)
                 <div class="alert alert-info d-flex align-items-center" role="alert">

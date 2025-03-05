@@ -52,109 +52,54 @@
         </div>
     </div>
 
-    <script>
-        // Modifikasi function loadData() untuk menampilkan barcode
-        function loadData() {
-            $.ajax({
-                url: "/barang/get-data",
-                type: "GET",
-                dataType: 'JSON',
-                success: function(response) {
-                    let table = $('#table_id').DataTable();
-                    table.clear();
-
-                    if (response.data.length === 0) {
-                        $('#table_id tbody').html('<tr><td colspan="8" style="text-align:center;">Tidak ada data tersedia</td></tr>');
-                        return;
-                    }
-                    
-                    $.each(response.data, function(key, value) {
-                        let stok = value.stok != null ? value.stok : 0;
-                        let stokMin = value.stok_minimum;
-                        let rowClass = "";
-
-                        // Menentukan warna berdasarkan stok
-                        // if (stok == 0) {
-                        //     rowClass = "table-danger";
-                        // } else if (stok <= stokMin) {
-                        //     rowClass = "table-warning";
-                        // }
-
-                        // Buat element gambar jika ada
-                        let gambarHTML = value.gambar ? 
-                            `<img src="${value.gambar}" alt="Gambar Barang" style="height: 80px; width: 80px; object-fit: cover;">` : 
-                            `<div style="height: 80px; width: 80px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #666;">No Img</div>`;
-
-                        let rowNode = table.row.add([
-                            // `<input type="checkbox" class="item_checkbox" data-id="${value.id}">`,
-                            value.barcode_html,
-                            gambarHTML,  // Tampilkan gambar sebagai img tag
-                            value.nama_barang,
-                            value.size,
-                            stokMin,
-                            value.nama_supplier,
-                            stok,
-                            `<a href="javascript:void(0)" id="button_detail_barang" data-id="${value.id}" class="btn btn-icon btn-success btn-lg mb-2"><i class="far fa-eye"></i> </a>
-                            <a href="javascript:void(0)" id="button_edit_barang" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
-                            <a href="javascript:void(0)" class="btn btn-icon btn-info btn-lg mb-2 button_print_single" data-id="${value.id}"><i class="fa fa-print"></i> </a>
-                            <a href="javascript:void(0)" id="button_hapus_barang" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>`
-                        ]).draw(false).node();
-
-                        $(rowNode).addClass(rowClass);
-                    });
-
-                    // Close the loading indicator when data is loaded
-                    Swal.close();
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error loading data:', error);
-                    $('#table_id tbody').html('<tr><td colspan="8" style="text-align:center; color:red;">Gagal memuat data. Silakan coba lagi.</td></tr>');
-                }
-            });
-        }
-    </script>
-
     <!-- Datatables Jquery -->
     <script>
        $(document).ready(function() {
-
-        $('<style>')
-        .text(`
-            .custom-loader {
-                width: 40px;
-                height: 40px;
-                border: 5px solid #f3f3f3;
-                border-top: 5px solid #3498db;
-                border-radius: 50%;
-                display: inline-block;
-                animation: spin 1s linear infinite;
-                margin-right: 10px;
-            }
-            
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-            
-            .loading-container {
-                text-align: center;
-                padding: 20px;
-            }
-        `)
-        .appendTo('head');
-
-        // Inisialisasi DataTable
-        let table = $('#table_id').DataTable({
-            processing: true,
-            language: {
-                emptyTable: '<div class="loading-container"><div class="custom-loader"></div><div>Sedang memuat data...</div></div>'
-            }
-        });
-
-        // Set initial state to show loading in the table
-        $('#table_id tbody').html('<tr><td colspan="8" class="loading-container"><div class="custom-loader"></div><div>Sedang memuat data barang...</div></td></tr>');
-        
-        loadData();
+            let table = $('#table_id').DataTable({
+                processing: false,
+                serverSide: true,
+                ajax: {
+                    url: '/barang/get-data',
+                    type: 'GET'
+                },
+                columns: [
+                    { data: 'barcode_html', orderable: false, searchable: false },
+                    { data: 'gambar', 
+                    render: function(data) {
+                        return data ? `<img src="${data}" style="height: 80px; width: 80px; object-fit: cover;">` : 
+                                    `<div style="height: 80px; width: 80px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #666; font-size: 14px; line-height: 1; text-align: center;">No Img</div>`;
+                    },
+                    orderable: false,
+                    searchable: false
+                    },
+                    { data: 'nama_barang' },
+                    { data: 'size' },
+                    { data: 'stok_minimum' },
+                    { data: 'nama_supplier' },
+                    { data: 'stok' },
+                    { data: 'id',
+                    render: function(data) {
+                        return `<a href="javascript:void(0)" id="button_detail_barang" data-id="${data}" class="btn btn-icon btn-success btn-lg mb-2"><i class="far fa-eye"></i></a>
+                                <a href="javascript:void(0)" id="button_edit_barang" data-id="${data}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i></a>
+                                <a href="javascript:void(0)" class="btn btn-icon btn-info btn-lg mb-2 button_print_single" data-id="${data}"><i class="fa fa-print"></i></a>
+                                <a href="javascript:void(0)" id="button_hapus_barang" data-id="${data}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i></a>`;
+                    },
+                    orderable: false,
+                    searchable: false
+                    }
+                ],
+                rowCallback: function(row, data) {
+                    let stok = data.stok != null ? data.stok : 0;
+                    let stokMin = data.stok_minimum;
+                    let rowClass = '';
+                    // if (stok == 0) {
+                    //     rowClass = 'table-danger';
+                    // } else if (stok <= stokMin) {
+                    //     rowClass = 'table-warning';
+                    // }
+                    $(row).addClass(rowClass);
+                },
+            });
 
         $('body').on('click', '#button_import', function() {
             $('#modal_import').modal('show');
@@ -181,9 +126,8 @@
                         
                         // Tampilkan pesan sukses
                         Swal.fire('Sukses!', response.message, 'success');
-                        
-                        // Reload data
-                        loadData();
+
+                        $('#table_id').DataTable().ajax.reload(null, false);
                     }
                 },
                 error: function(xhr) {
@@ -266,8 +210,7 @@
                 // Close modal
                 $('#modal_tambah_barang').modal('hide');
 
-                // Panggil loadData() untuk memuat ulang data dengan barcode
-                loadData();
+                $('#table_id').DataTable().ajax.reload(null, false);
             },
 
             error: function(error) {
@@ -411,7 +354,7 @@
                         timer: 3000
                     });
 
-                    loadData();
+                    $('#table_id').DataTable().ajax.reload(null, false);
                     $('#modal_edit_barang').modal('hide');
                 },
                 error: function(error) {
@@ -495,8 +438,7 @@
                                 type: "GET",
                                 dataType: 'JSON',
                                 success: function(response) {
-                                    loadData();
-                                    
+                                    $('#table_id').DataTable().ajax.reload(null, false);
                                 }
                             });
                         }
@@ -522,7 +464,7 @@
     <!-- HANDLE PRINT -->
     <script>
         $(document).ready(function() {
-            loadData();
+            $('#table_id').DataTable().ajax.reload(null, false);
 
             // Toggle select all checkbox
             $('#select_all_items').on('click', function() {

@@ -90,7 +90,7 @@ class BarangImport implements ToModel, WithHeadingRow, WithValidation
     public function rules(): array
     {
         return [
-            'jenis'         => 'required|string',
+            'jenis'         => 'nullable|string',
             'kode'          => 'required|unique:barangs,kode',
             'nama_barang'   => 'required',
             'size'          => 'nullable',       
