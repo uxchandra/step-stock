@@ -16,6 +16,9 @@ use App\Http\Controllers\LaporanStokController;
 use App\Http\Controllers\LaporanBarangMasukController;
 use App\Http\Controllers\LaporanBarangKeluarController;
 use App\Http\Controllers\LaporanPermintaanDepartmentController;
+use App\Http\Controllers\MasterEventController;
+use App\Http\Controllers\ScanLabelController;
+use App\Http\Controllers\StoItemController;
 use App\Models\Barang;
 
 Route::get('/', function () {
@@ -91,6 +94,17 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('/laporan-permintaan-department', LaporanPermintaanDepartmentController::class);
     Route::get('/laporan-permintaan-department/{id}', [LaporanPermintaanDepartmentController::class, 'show'])->name('laporan-permintaan-department.show');
+
+    Route::get('/master-event/get-data', [MasterEventController::class, 'getData']);
+    Route::resource('/master-event', MasterEventController::class);
+
+    Route::resource('/scan-label', ScanLabelController::class);
+    Route::post('/scan-label/scan', [ScanLabelController::class, 'scan'])->name('scan.label.scan');
+    Route::post('/scan-label/store', [ScanLabelController::class, 'store'])->name('scan.label.store');
+
+    Route::get('/sto-items/get-data', [StoItemController::class, 'getData']);
+    Route::resource('/sto-items', StoItemController::class);   
+
 });
 
 require __DIR__.'/auth.php';

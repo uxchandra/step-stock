@@ -28,7 +28,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="table_id" class="display">
+                        <table id="table_id" class="display" style="font-size: 13px;">
                             <thead>
                                 <tr>
                                     {{-- <th><input type="checkbox" id="select_all_items"></th> --}}
@@ -58,6 +58,7 @@
             let table = $('#table_id').DataTable({
                 processing: false,
                 serverSide: true,
+                paging: true,
                 ajax: {
                     url: '/barang/get-data',
                     type: 'GET'
@@ -79,10 +80,12 @@
                     { data: 'stok' },
                     { data: 'id',
                     render: function(data) {
-                        return `<a href="javascript:void(0)" id="button_detail_barang" data-id="${data}" class="btn btn-icon btn-success btn-lg mb-2"><i class="far fa-eye"></i></a>
-                                <a href="javascript:void(0)" id="button_edit_barang" data-id="${data}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i></a>
-                                <a href="javascript:void(0)" class="btn btn-icon btn-info btn-lg mb-2 button_print_single" data-id="${data}"><i class="fa fa-print"></i></a>
-                                <a href="javascript:void(0)" id="button_hapus_barang" data-id="${data}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i></a>`;
+                        return `<div class="d-flex">
+                                  <a href="javascript:void(0)" id="button_detail_barang" data-id="${data}" class="btn btn-icon btn-success mx-1" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;"><i class="far fa-eye"></i></a>
+                                  <a href="javascript:void(0)" id="button_edit_barang" data-id="${data}" class="btn btn-icon btn-warning mx-1" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;"><i class="far fa-edit"></i></a>
+                                  <a href="javascript:void(0)" class="btn btn-icon btn-info mx-1 button_print_single" data-id="${data}" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;"><i class="fa fa-print"></i></a>
+                                  <a href="javascript:void(0)" id="button_hapus_barang" data-id="${data}" class="btn btn-icon btn-danger mx-1" style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-trash"></i></a>
+                                </div>`;
                     },
                     orderable: false,
                     searchable: false

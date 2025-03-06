@@ -40,7 +40,6 @@
     gtag('config', 'UA-94034622-3');
   </script>
 
-  
 <!-- /END GA --></head>
 
 <body>
@@ -100,7 +99,7 @@
                 </li>
 
                 <li class="menu-header">PERMINTAAN BARANG</li>
-                <li><a class="nav-link {{ Request::is('orders') ? 'active' : '' }}" href="/orders"><i class="fa fa-sharp fa-solid fa-clipboard-list"></i> <span>Permintaan Barang</span></a></li>
+                <li><a class="nav-link {{ Request::is('orders') ? 'active' : '' }}" href="/orders"><i class="fa fa-sharp fa-solid fa-arrow-up"></i> <span>Permintaan Barang</span></a></li>
                 <li><a class="nav-link {{ Request::is('laporan-permintaan') ? 'active' : '' }}" href="laporan-permintaan"><i class="fa fa-sharp fa-reguler fa-file"></i><span>Laporan Permintaan</span></a></li>        
             @endif
 
@@ -120,14 +119,18 @@
               <li class="menu-header">MANAJEMEN BARANG</li>
               <li><a class="nav-link {{ Request::is('barang-masuk') ? 'active' : '' }}" href="/barang-masuk"><i class="fa fa-solid fa-arrow-right"></i><span>Barang Masuk</span></a></li>
               <li><a class="nav-link {{ Request::is('barang-keluar') ? 'active' : '' }}" href="/barang-keluar"><i class="fa fa-sharp fa-solid fa-arrow-left"></i> <span>Barang Keluar</span></a></li>
-              <li><a class="nav-link {{ Request::is('orders') ? 'active' : '' }}" href="/orders"><i class="fa fa-sharp fa-solid fa-clipboard-list"></i> <span>Permintaan Barang</span></a></li>
+              <li><a class="nav-link {{ Request::is('orders') ? 'active' : '' }}" href="/orders"><i class="fa fa-sharp fa-solid fa-arrow-up"></i> <span>Permintaan Barang</span></a></li>
             
               <li class="menu-header">LAPORAN</li>
               <li><a class="nav-link {{ Request::is('laporan-stok') ? 'active' : '' }}" href="laporan-stok"><i class="fa fa-sharp fa-reguler fa-file"></i><span>Stok</span></a></li>
               <li><a class="nav-link {{ Request::is('laporan-barang-masuk') ? 'active' : '' }}" href="laporan-barang-masuk"><i class="fa fa-regular fa-file-import"></i><span>Barang Masuk</span></a></li>
               <li><a class="nav-link {{ Request::is('laporan-barang-keluar') ? 'active' : '' }}" href="laporan-barang-keluar"><i class="fa fa-sharp fa-regular fa-file-export"></i><span>Barang Keluar</span></a></li> 
-              <li><a class="nav-link {{ Request::is('laporan-permintaan-department') ? 'active' : '' }}" href="laporan-permintaan-department"><i class="fa fa-sharp fa-regular fa-file-upload"></i><span>Permintaan</span></a></li> 
-
+              <li><a class="nav-link {{ Request::is('laporan-permintaan-department') ? 'active' : '' }}" href="laporan-permintaan-department"><i class="fa fa-sharp fa-regular fa-file-upload"></i><span>Permintaan</span></a></li>
+              
+              <li class="menu-header">STO</li>
+              <li><a class="nav-link {{ Request::is('master-event') ? 'active' : '' }}" href="master-event"><i class="fas fa-calendar"></i><span>Master Event</span></a></li>
+              <li><a class="nav-link {{ Request::is('scan-label') ? 'active' : '' }}" href="scan-label"><i class="fa fa-solid fa-qrcode"></i><span>Scan Label</span></a></li>
+              <li><a class="nav-link {{ Request::is('sto-items') ? 'active' : '' }}" href="sto-items"><i class="fa fa-sharp fa-solid fa-clipboard-list"></i><span>STO Items</span></a></li>
               
               @if (auth()->user()->role->role === 'superadmin') 
                 <li class="menu-header">MANAJEMEN USER</li>
