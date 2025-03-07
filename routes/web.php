@@ -96,6 +96,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan-permintaan-department/{id}', [LaporanPermintaanDepartmentController::class, 'show'])->name('laporan-permintaan-department.show');
 
     Route::get('/master-event/get-data', [MasterEventController::class, 'getData']);
+    Route::post('/master-event/{id}/reset-stok', [MasterEventController::class, 'resetStok'])->name('master-event.reset-stok');
     Route::resource('/master-event', MasterEventController::class);
 
     Route::resource('/scan-label', ScanLabelController::class);
@@ -103,7 +104,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/scan-label/store', [ScanLabelController::class, 'store'])->name('scan.label.store');
 
     Route::get('/sto-items/get-data', [StoItemController::class, 'getData']);
-    Route::resource('/sto-items', StoItemController::class);   
+    Route::resource('/sto-items', StoItemController::class); 
+    Route::put('/sto-items/{id}/status', [StoItemController::class, 'updateStatus'])->name('sto-items.update-status');
 
 });
 

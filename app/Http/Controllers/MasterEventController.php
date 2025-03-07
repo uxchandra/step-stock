@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\StoEvent;
+use App\Models\StoItem;
+use App\Models\Barang;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+
 
 class MasterEventController extends Controller
 {
@@ -18,9 +22,21 @@ class MasterEventController extends Controller
 
     public function getData()
     {
+        $events = StoEvent::all();
+        $data = $events->map(function ($event) {
+            return [
+                'id' => $event->id,
+                'nama_event' => $event->nama_event,
+                'tanggal_mulai' => $event->tanggal_mulai,
+                'tanggal_selesai' => $event->tanggal_selesai,
+                'status' => $event->status,
+                'reset_date' => $event->reset_date, // Tambahkan kolom reset_date
+            ];
+        });
+
         return response()->json([
             'success' => true,
-            'data'    => StoEvent::all()
+            'data' => $data
         ]);
     }
 
@@ -155,29 +171,54 @@ class MasterEventController extends Controller
     /**
      * Change event status.
      */
-    public function changeStatus(Request $request, $id)
+    public function resetStok($id)
     {
-        $event = StoEvent::find($id);
-        
-        $validator = Validator::make($request->all(),[
-            'status' => 'required|in:draft,active,closed',
-        ],[
-            'status.required' => 'Status tidak boleh kosong',
-            'status.in' => 'Status harus berupa: draft, active, atau closed',
-        ]);
-
-        if($validator->fails()){
-            return response()->json($validator->errors(), 422);
+        try {
+            // Ambil event dan pastikan statusnya active
+            $event = StoEvent::findOrFail($id);
+            
+            if ($event->status !== 'active') {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Hanya event dengan status active yang dapat direset stoknya.'
+                ], 400);
+            }
+            
+            DB::beginTransaction();
+            
+            // Ambil semua item STO dari event ini
+            $stoItems = StoItem::where('sto_event_id', $event->id)->get();
+            
+            foreach ($stoItems as $item) {
+                // Update stok di tabel barang
+                $barang = Barang::find($item->barang_id);
+                if ($barang) {
+                    $barang->stok = $item->stok_aktual;
+                    $barang->save();
+                }
+                
+                // Update status item menjadi close
+                $item->status = 'close';
+                $item->save();
+            }
+            
+            // Update status event menjadi closed
+            $event->status = 'closed';
+            $event->reset_date = now();
+            $event->save();
+            
+            DB::commit();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Stok berhasil direset dan event telah ditutup.'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
         }
-
-        $event->update([
-            'status' => $request->status
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Status Event STO Berhasil Diubah',
-            'data'    => $event
-        ]);
     }
 }

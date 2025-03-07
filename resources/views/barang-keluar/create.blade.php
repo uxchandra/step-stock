@@ -1,101 +1,98 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="section-header">
-        <h1>Tambah Barang Keluar</h1>
-    </div>
-    <div class="container-fluid mt-2">
+    <div class="container-fluid px-3 py-3">
+        <div class="section-header d-flex justify-content-between align-items-center mb-3">
+            <h1 class="h4 mb-0">Tambah Barang Keluar</h1>
+            <a href="{{ route('barang-keluar.index') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </a>
+        </div>
+
         @if(isset($order))
-            <!-- Form untuk order normal -->
             <form method="post" action="{{ route('orders.processScan', $order->id) }}">
         @else
-            <!-- Form untuk barang keluar manual -->
             <form method="post" action="{{ route('barang-keluar.store') }}">
         @endif
             @csrf
-            <div class="row">
-                <div class="col-md-8 col-sm-8">
-                    <div class="card">
-                        <div class="card-body">
-                            @if(isset($order))
-                            <!-- Detail Order - Tampil hanya jika ada order -->
-                            <div class="mb-4">
-                                <h5>Detail Order</h5>
-                                <div class="table-responsive">
-                                    <table class="table table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th class="text-center">Kode Barang</th>
-                                                <th class="text-center">Nama Barang</th>
-                                                <th class="text-center">Stok</th>
-                                                <th class="text-center">Qty Diminta</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($order->orderItems as $item)
-                                                <tr>
-                                                    <td class="text-center">
-                                                        {!! $item->barcode_html !!}
-                                                        <div class="mt-1">{{ $item->barang->kode }}</div>
-                                                    </td>
-                                                    <td>{{ $item->barang->nama_barang }}</td>
-                                                    <td class="text-center">{{ $item->barang->stok }}</td>
-                                                    <td class="text-center">{{ $item->quantity }}</td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
+            <!-- Scan Section -->
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body p-3">
+                    <div class="form-group mb-3">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="kode_barang" 
+                                   placeholder="Scan/Input Kode" autocomplete="off">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" id="submit_kode" type="button">
+                                    <i class="fas fa-barcode"></i>
+                                </button>
                             </div>
-                            @endif
-    
-                            <!-- Form Scan -->
-                            <div class="form-group row">
-                                <div class="col-md-8">
-                                    <input type="text" class="form-control" id="kode_barang" placeholder="Scan/Input Kode Barang">
-                                </div>
-                                <div class="col-md-4">
-                                    <button class="btn btn-primary" id="submit_kode">
-                                        <i class="fas fa-barcode"></i> Scan
-                                    </button>
-                                </div>
-                            </div>
-    
-                            <!-- Tabel Barang yang Di-scan -->
-                            <div class="table-responsive mt-4">
-                                <table class="table" id="tableItem">
-                                    <thead>
+                        </div>
+                    </div>
+
+                    <!-- Date and Notes -->
+                    <div class="form-group mb-2">
+                        <input type="date" class="form-control" id="tanggal_keluar" 
+                               name="tanggal_keluar" value="{{ date('Y-m-d') }}" readonly>
+                    </div>
+                    @if(!isset($order))
+                        <div class="form-group mb-0">
+                            <textarea name="catatan" id="catatan" class="form-control" rows="2" 
+                                      placeholder="Masukkan keterangan/alasan barang keluar tanpa order" required></textarea>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Order Details (if exists) -->
+            @if(isset($order))
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body p-3">
+                        <h5 class="h6 mb-2">Detail Order</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th class="text-muted">Kode</th>
+                                        <th class="text-muted">Nama</th>
+                                        <th class="text-muted">Stok</th>
+                                        <th class="text-muted">Qty</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($order->orderItems as $item)
                                         <tr>
-                                            <th class="text-center text-muted">Kode Barang</th>
-                                            <th class="text-center text-muted">Nama Barang</th>
-                                            <th class="text-center text-muted">Stok Saat Ini</th>
-                                            <th class="text-center text-muted">Qty Keluar</th>
-                                            <th class="text-center text-muted">Action</th>
+                                            <td>{!! $item->barcode_html !!}<div>{{ $item->barang->kode }}</div></td>
+                                            <td>{{ $item->barang->nama_barang }}</td>
+                                            <td>{{ $item->barang->stok }}</td>
+                                            <td>{{ $item->quantity }}</td>
                                         </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 col-sm-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <!-- Form Catatan dan Tanggal Keluar Digabung -->
-                            @if(!isset($order))
-                            <div class="form-group">
-                                <label for="catatan">Catatan / Keterangan</label>
-                                <textarea name="catatan" id="catatan" class="form-control" rows="3" required placeholder="Masukkan keterangan atau alasan barang keluar tanpa order"></textarea>
-                            </div>
-                            @endif
-                            <div class="form-group">
-                                <label for="tanggal_keluar">Tanggal Keluar</label>
-                                <input type="date" class="form-control" id="tanggal_keluar" name="tanggal_keluar" value="{{ date('Y-m-d') }}" readonly>
-                            </div>
-                            <button type="submit" class="btn btn-primary float-right">Submit</button>
-                        </div>
+            @endif
+
+            <!-- Scanned Items Table -->
+            <div class="card shadow-sm">
+                <div class="card-body p-3">
+                    <div class="table-responsive">
+                        <table class="table table-sm" id="tableItem">
+                            <thead>
+                                <tr>
+                                    <th class="text-muted">Kode</th>
+                                    <th class="text-muted">Nama</th>
+                                    <th class="text-muted">Stok</th>
+                                    <th class="text-muted">Qty</th>
+                                    <th class="text-muted"></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
+                    <button type="submit" class="btn btn-primary btn-block mt-3">Simpan</button>
                 </div>
             </div>
         </form>
@@ -105,168 +102,127 @@
         <script>
             $(document).ready(function() {
                 var rowCounter = 0;
-
-                // Focus pada input kode saat halaman dimuat
                 $('#kode_barang').focus();
-
-                // Handle ketika tombol Enter ditekan pada input kode (dari scanner)
-                $('#kode_barang').keypress(function(e) {
-                    if(e.which == 13) { // Enter key
-                        e.preventDefault();
-                        processScan();
-                    }
-                });
-
-                // Handle ketika tombol Scan diklik
-                $("#submit_kode").click(function(e) {
-                    e.preventDefault();
-                    processScan();
-                });
 
                 function processScan() {
                     var code = $('#kode_barang').val();
-                    
                     if (!code) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Peringatan',
-                            text: 'Silakan masukkan kode barang!'
-                        });
+                        Swal.fire({icon: 'warning', title: 'Peringatan', text: 'Masukkan kode barang!', timer: 1500, showConfirmButton: false});
                         return;
                     }
 
                     var existingRow = $('#tableItem').find('input.code[value="' + code + '"]').closest('tr');
-                    
                     if (existingRow.length > 0) {
                         var qtyInput = existingRow.find('input.qty');
-                        var currentQty = parseFloat(qtyInput.val());
-                        qtyInput.val(currentQty + 1);
-                        $('#kode_barang').val('').focus();
-                    } else {
-                        $.ajax({
-                            type: 'GET',
-                            url: "{{ url('/barang/kode') }}/" + code,
-                            success: function(data) {
-                                if (data.success) {
-                                    // Cek apakah ada orderItems (hanya relevan jika ada order)
-                                    @if(isset($order))
-                                        const allowedItems = @json($orderItems); // Daftar ID barang dari order
-                                        if (allowedItems.includes(data.barang.id)) {
-                                            addNewRow(data.barang);
-                                        } else {
-                                            Swal.fire({
-                                                icon: 'error',
-                                                title: 'Oops...',
-                                                text: 'Barang ' + data.barang.nama_barang + ' tidak ada dalam order ini!'
-                                            });
-                                            $('#kode_barang').val('').focus();
-                                        }
-                                    @else
-                                        // Jika tidak ada order (manual), langsung tambahkan barang
-                                        addNewRow(data.barang);
-                                    @endif
-                                } else {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Oops...',
-                                        text: 'Barang tidak ditemukan'
-                                    });
-                                    $('#kode_barang').val('').focus();
-                                }
-                            },
-                            error: function() {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Oops...',
-                                    text: 'Terjadi kesalahan saat mencari barang'
-                                });
-                                $('#kode_barang').val('').focus();
-                            }
-                        });
+                        qtyInput.val(parseFloat(qtyInput.val()) + 1);
+                        resetInput();
+                        return;
                     }
+
+                    $.ajax({
+                        type: 'GET',
+                        url: "{{ url('/barang/kode') }}/" + code,
+                        success: function(data) {
+                            if (data.success) {
+                                @if(isset($order))
+                                    const allowedItems = @json($orderItems);
+                                    if (allowedItems.includes(data.barang.id)) {
+                                        addNewRow(data.barang);
+                                    } else {
+                                        showError('Barang ' + data.barang.nama_barang + ' tidak ada dalam order!');
+                                    }
+                                @else
+                                    addNewRow(data.barang);
+                                @endif
+                            } else {
+                                showError('Barang tidak ditemukan');
+                            }
+                        },
+                        error: function() {
+                            showError('Terjadi kesalahan saat mencari barang');
+                        }
+                    });
                 }
 
                 function addNewRow(barang) {
                     const newRow = `
                         <tr id="rowItem${rowCounter}">
-                            <td><input type="text" class="form-control code" name="code[]" value="${barang.kode}" readonly disabled></td>
-                            <td><input type="text" class="form-control" name="nama_barang[]" value="${barang.nama_barang}" readonly disabled></td>
-                            <td><input type="text" class="form-control" name="stok[]" value="${barang.stok}" readonly disabled></td>
-                            <td><input type="number" class="form-control qty" name="qty[]" value="1" min="1"></td>
+                            <td><input type="text" class="form-control form-control-sm code" name="code[]" value="${barang.kode}" readonly disabled></td>
+                            <td><input type="text" class="form-control form-control-sm" name="nama_barang[]" value="${barang.nama_barang}" readonly disabled></td>
+                            <td><input type="text" class="form-control form-control-sm" name="stok[]" value="${barang.stok}" readonly disabled></td>
+                            <td><input type="number" class="form-control form-control-sm qty" name="qty[]" value="1" min="1"></td>
                             <td>
                                 <button class="btn btn-danger btn-sm delete_row">
                                     <i class="fa fa-trash"></i>
                                 </button>
                             </td>
-                            <td style="display: none">
+                            <td class="d-none">
                                 <input type="hidden" name="barang_id[]" value="${barang.id}">
                             </td>
                         </tr>
                     `;
                     rowCounter++;
                     $('#tableItem tbody').append(newRow);
+                    resetInput();
+                }
+
+                function resetInput() {
                     $('#kode_barang').val('').focus();
                 }
 
-                // Handle delete row
-                $('body').on('click', '.delete_row', function(e) {
-                    e.preventDefault();
-                    $(this).closest("tr").remove();
-                    $('#kode_barang').focus();
+                function showError(message) {
+                    Swal.fire({icon: 'error', title: 'Oops...', text: message, timer: 1500, showConfirmButton: false});
+                    resetInput();
+                }
+
+                // Event Handlers
+                $('#kode_barang').keypress(function(e) {
+                    if (e.which == 13) {
+                        e.preventDefault();
+                        processScan();
+                    }
                 });
 
-                    // Handle form submit
-                    $('form').submit(function(e) {
-                        e.preventDefault(); // Prevent default form submission
-                        
-                        if ($('#tableItem tbody tr').length === 0) {
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'Peringatan',
-                                text: 'Silakan tambahkan minimal satu barang!'
-                            });
-                            return;
-                        }
-                        
-                        // Get the form data
-                        var formData = $(this).serialize();
-                        var formAction = $(this).attr('action');
+                $('#submit_kode').click(function(e) {
+                    e.preventDefault();
+                    processScan();
+                });
 
-                        // Submit form using AJAX
-                        $.ajax({
-                            type: 'POST',
-                            url: formAction,
-                            data: formData,
-                            success: function(response) {
-                                // Show success message
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Berhasil!',
-                                    text: 'Data Barang keluar berhasil disimpan.',
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                }).then(function() {
-                                    // Redirect to index page after success alert
-                                    window.location.href = "{{ route('barang-keluar.index') }}";
-                                });
-                            },
-                            error: function(xhr) {
-                                // Show error message
-                                var errorMessage = 'Terjadi kesalahan saat menyimpan data.';
-                                
-                                if (xhr.responseJSON && xhr.responseJSON.message) {
-                                    errorMessage = xhr.responseJSON.message;
-                                }
-                                
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error!',
-                                    text: errorMessage
-                                });
-                            }
-                        });
+                $(document).on('click', '.delete_row', function(e) {
+                    e.preventDefault();
+                    $(this).closest('tr').remove();
+                    resetInput();
+                });
+
+                $('form').submit(function(e) {
+                    e.preventDefault();
+                    if ($('#tableItem tbody tr').length === 0) {
+                        Swal.fire({icon: 'warning', title: 'Peringatan', text: 'Tambahkan minimal satu barang!', timer: 1500, showConfirmButton: false});
+                        return;
+                    }
+
+                    $.ajax({
+                        type: 'POST',
+                        url: $(this).attr('action'),
+                        data: $(this).serialize(),
+                        success: function(response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: 'Barang keluar berhasil disimpan',
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                window.location.href = "{{ route('barang-keluar.index') }}";
+                            });
+                        },
+                        error: function(xhr) {
+                            var errorMessage = xhr.responseJSON?.message || 'Terjadi kesalahan saat menyimpan data';
+                            showError(errorMessage);
+                        }
                     });
                 });
+            });
         </script>
     @endpush
 @endsection

@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @include('sto.event.create')
 @include('sto.event.edit')
+@include('sto.event.reset')
 
 @section('content')
     <div class="section-header">
@@ -24,6 +25,7 @@
                                     <th>Tanggal Mulai</th>
                                     <th>Tanggal Selesai</th>
                                     <th>Status</th>
+                                    <th>Reset Date</th>
                                     <th>Opsi</th>
                                 </tr>
                             </thead>
@@ -35,6 +37,21 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function getStatusBadge(status) {
+            if (status === 'draft') {
+                return '<span class="badge badge-secondary">Draft</span>';
+            } else if (status === 'active') {
+                return '<span class="badge badge-primary">Active</span>';
+            } else if (status === 'closed') {
+                return '<span class="badge badge-success">Closed</span>';
+            } else {
+                return status;
+            }
+        }
+    </script>
+    
     <!-- Datatables Jquery -->
     <script>
         function formatDate(dateString) {
@@ -43,12 +60,65 @@
             return date.toISOString().split('T')[0]; 
         }
 
+
         $(document).ready(function() {
             $('#table_id').DataTable({
                 paging: true,
                 searching: true,
                 ordering: true,
             });
+            
+            loadEventData();
+            
+            // Handle klik tombol reset stok
+            $(document).on('click', '#button_reset_stok', function() {
+                const id = $(this).data('id');
+                const name = $(this).data('name');
+                
+                $('#event_name_reset').text(name);
+                $('#form_reset_stok').attr('action', `/master-event/${id}/reset-stok`);
+                $('#modal_reset_stok').modal('show');
+            });
+            
+            // Handle submit form reset stok
+            $('#form_reset_stok').on('submit', function(e) {
+                e.preventDefault();
+                
+                const action = $(this).attr('action');
+                const token = $("meta[name='csrf-token']").attr("content");
+                
+                $.ajax({
+                    url: action,
+                    type: "POST",
+                    data: {
+                        "_token": token
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            type: 'success',
+                            icon: 'success',
+                            title: response.message,
+                            showConfirmButton: true,
+                            timer: 3000
+                        });
+                        
+                        $('#modal_reset_stok').modal('hide');
+                        loadEventData();
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            type: 'error',
+                            icon: 'error',
+                            title: 'Terjadi kesalahan!',
+                            text: xhr.responseJSON ? xhr.responseJSON.message : 'Gagal mereset stok',
+                            showConfirmButton: true
+                        });
+                    }
+                });
+            });
+        });
+        
+        function loadEventData() {
             $.ajax({
                 url: "/master-event/get-data",
                 type: "GET",
@@ -57,16 +127,25 @@
                     let counter = 1;
                     $('#table_id').DataTable().clear();
                     $.each(response.data, function(key, value) {
+                        let resetButton = '';
+                        if (value.status === 'active') {
+                            resetButton = `<a href="javascript:void(0)" id="button_reset_stok" data-id="${value.id}" data-name="${value.nama_event}" class="btn btn-icon btn-warning mr-2"><i class="fas fa-sync-alt"></i></a>`;
+                        }
+                        
                         let event = `
                 <tr class="event-row" id="index_${value.id}">
                     <td>${counter++}</td>   
                     <td>${value.nama_event}</td>
                     <td>${formatDate(value.tanggal_mulai)}</td>
                     <td>${formatDate(value.tanggal_selesai)}</td>
-                    <td>${value.status}</td>
+                    <td>${getStatusBadge(value.status)}</td>
+                    <td>${value.reset_date ? formatDate(value.reset_date) : '-'}</td>
                     <td>
-                        <a href="javascript:void(0)" id="button_edit_event" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
-                        <a href="javascript:void(0)" id="button_hapus_event" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                            <div class="d-flex">
+                                ${resetButton}
+                                <a href="javascript:void(0)" id="button_edit_event" data-id="${value.id}" class="btn btn-icon btn-info mr-2"><i class="far fa-edit"></i></a>
+                                <a href="javascript:void(0)" id="button_hapus_event" data-id="${value.id}" class="btn btn-icon btn-danger"><i class="fas fa-trash"></i></a>
+                            </div>
                     </td>
                 </tr>
             `;
@@ -74,7 +153,7 @@
                     });
                 }
             });
-        });
+        }
     </script>
 
     <!-- Show Modal Tambah Event -->
@@ -134,8 +213,11 @@
                                     <td>${formatDate(value.tanggal_selesai)}</td>
                                     <td>${value.status}</td>
                                     <td>
-                                        <a href="javascript:void(0)" id="button_edit_event" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
-                                        <a href="javascript:void(0)" id="button_hapus_event" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                                            <div class="d-flex">
+                                                ${resetButton}
+                                                <a href="javascript:void(0)" id="button_edit_event" data-id="${value.id}" class="btn btn-icon btn-info mr-2"><i class="far fa-edit"></i></a>
+                                                <a href="javascript:void(0)" id="button_hapus_event" data-id="${value.id}" class="btn btn-icon btn-danger"><i class="fas fa-trash"></i></a>
+                                            </div>
                                     </td>
                                 </tr>
                              `;
@@ -300,8 +382,11 @@
                                             <td>${formatDate(value.tanggal_selesai)}</td>
                                             <td>${value.status}</td>
                                             <td>
-                                                <a href="javascript:void(0)" id="button_edit_event" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
-                                                <a href="javascript:void(0)" id="button_hapus_event" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                                                    <div class="d-flex">
+                                                        ${resetButton}
+                                                        <a href="javascript:void(0)" id="button_edit_event" data-id="${value.id}" class="btn btn-icon btn-info mr-2"><i class="far fa-edit"></i></a>
+                                                        <a href="javascript:void(0)" id="button_hapus_event" data-id="${value.id}" class="btn btn-icon btn-danger"><i class="fas fa-trash"></i></a>
+                                                    </div>
                                             </td>
                                         </tr>
                                     `;

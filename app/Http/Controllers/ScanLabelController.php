@@ -59,32 +59,31 @@ class ScanLabelController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi input dari modal
         $request->validate([
             'barang_id' => 'required|exists:barangs,id',
             'stok_aktual' => 'required|integer|min:0',
         ]);
-
-        // Ambil event aktif
+    
         $activeEvent = StoEvent::where('status', 'active')->first();
         if (!$activeEvent) {
             return response()->json(['error' => 'Tidak ada event STO aktif.'], 400);
         }
-
-        // Ambil barang
+    
         $barang = Barang::find($request->barang_id);
+    
 
-        // Simpan ke sto_items
         $stoItem = StoItem::create([
             'sto_event_id' => $activeEvent->id,
             'barang_id' => $barang->id,
             'stok_sistem' => $barang->stok,
             'stok_aktual' => $request->stok_aktual,
             'selisih' => $request->stok_aktual - $barang->stok,
-            'scanned_by' => Auth::user()->id, // Asumsi pakai auth
+            'scanned_by' => Auth::user()->id, 
+            'waktu_scan' => now(), 
+            'status' => 'open', 
             'catatan' => $request->catatan ?? null,
         ]);
-
-        return response()->json(['success' => true, 'message' => 'Stok aktual berhasil disimpan.']);
+    
+        return response()->json(['success' => true, 'message' => 'Data berhasil disimpan.']);
     }
 }

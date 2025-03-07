@@ -52,8 +52,10 @@
                     <td>${counter++}</td>   
                     <td>${value.jenis_barang}</td>
                     <td>
-                        <a href="javascript:void(0)" id="button_edit_jenis_barang" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mb-2"><i class="far fa-edit"></i> </a>
-                        <a href="javascript:void(0)" id="button_hapus_jenis_barang" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg mb-2"><i class="fas fa-trash"></i> </a>
+                        <div class="d-flex">
+                            <a href="javascript:void(0)" id="button_edit_jenis_barang" data-id="${value.id}" class="btn btn-icon btn-warning btn-lg mr-2"><i class="far fa-edit"></i></a>
+                            <a href="javascript:void(0)" id="button_hapus_jenis_barang" data-id="${value.id}" class="btn btn-icon btn-danger btn-lg"><i class="fas fa-trash"></i></a>
+                        </div>
                     </td>
                 </tr>
             `;

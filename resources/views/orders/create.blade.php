@@ -44,6 +44,12 @@
                             <i class="fas fa-plus"></i> Tambah Barang
                         </button>
                     </div>
+                    
+                    <!-- Tambahan kolom keterangan penggunaan -->
+                    <div class="form-group">
+                        <label for="catatan">Keterangan Penggunaan</label>
+                        <textarea class="form-control" id="catatan" name="catatan" rows="3" placeholder="Masukkan keterangan penggunaan barang"></textarea>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">

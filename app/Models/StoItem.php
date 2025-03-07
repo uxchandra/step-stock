@@ -67,7 +67,7 @@ class StoItem extends Model
     /**
      * Get the user who scanned this item.
      */
-    public function scanner()
+    public function scannedByUser()
     {
         return $this->belongsTo(User::class, 'scanned_by');
     }
